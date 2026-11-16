@@ -1,18 +1,19 @@
 #![allow(internal_features)]
 #![feature(char_internals)]
 #![feature(const_trait_impl)]
-use std::{hint::black_box};
+use std::hint::black_box;
 
 use criterion::{Criterion, criterion_group, criterion_main};
 
 pub struct StringTest {
-    vec: Vec<u8>
+    vec: Vec<u8>,
 }
-
 
 impl Clone for StringTest {
     fn clone(&self) -> Self {
-        StringTest { vec: self.vec.clone() }
+        StringTest {
+            vec: self.vec.clone(),
+        }
     }
 
     /// Clones the contents of `source` into `self`.
@@ -74,7 +75,11 @@ impl StringTest {
         }
 
         let len = self.vec.len();
-        let mut guard = SetLenOnDrop { s: self, idx: 0, del_bytes: 0 };
+        let mut guard = SetLenOnDrop {
+            s: self,
+            idx: 0,
+            del_bytes: 0,
+        };
 
         while guard.idx < len {
             // SAFETY: Use `vec`: `String`'s deref includes `write..read`,
@@ -116,27 +121,6 @@ impl StringTest {
     }
 }
 
-fn current_string_retain() {
-    // 1 KiB of ASCII text with a control character every 16 bytes: 64 removals per call.
-    let mut dirty = String::new();
-    while dirty.len() < 1024 {
-        dirty.push_str("fifteen bytes..");
-        dirty.push('\u{1}');
-    }
-    // Same length, nothing to remove.
-    let clean = "sixteen bytes...".repeat(64);
-
-    for (_, input) in [("removes 1 of 16", &dirty), ("removes nothing", &clean)] {
-        for _ in 0..15 {
-            // for _ in 0..100_000 {
-            let mut s = black_box(input).clone();
-            s.retain(|c| !c.is_control());
-            black_box(s);
-            // }
-        }
-    }
-}
-
 fn previous_string_retain() {
     // 1 KiB of ASCII text with a control character every 16 bytes: 64 removals per call.
     let mut dirty = StringTest::new();
@@ -145,7 +129,9 @@ fn previous_string_retain() {
         dirty.push('\u{1}');
     }
     // Same length, nothing to remove.
-    let clean = StringTest { vec: "sixteen bytes...".as_bytes().repeat(64) };
+    let clean = StringTest {
+        vec: "sixteen bytes...".as_bytes().repeat(64),
+    };
 
     for (_, input) in [("removes 1 of 16", &dirty), ("removes nothing", &clean)] {
         for _ in 0..15 {
@@ -157,18 +143,9 @@ fn previous_string_retain() {
 }
 
 fn bench_string_retain(c: &mut Criterion) {
-    c.bench_function("Current String Retain Benchmarks", |b| {
-        b.iter(|| {
-            black_box(current_string_retain())
-        })
-    });
-
     c.bench_function("Previous String Retain Benchmarks", |b| {
-        b.iter(|| {
-            black_box(previous_string_retain())
-        })
+        b.iter(|| black_box(previous_string_retain()))
     });
-
 }
 
 criterion_group!(benches, bench_string_retain);

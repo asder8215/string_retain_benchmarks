@@ -8,7 +8,11 @@ criterion = {version = "^0.6.0", features =["async_tokio"] }
 
 
 [[bench]]
-name = "string_retain_bench"
+name = "current_string_retain_bench"
+harness = false
+
+[[bench]]
+name = "optimized_string_retain_bench"
 harness = false
 
 [[bench]]

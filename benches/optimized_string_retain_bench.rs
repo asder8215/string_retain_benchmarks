@@ -7,7 +7,13 @@
 #![feature(str_internals)]
 #![feature(const_trait_impl)]
 use core::{fmt, slice, str::utf8_char_width};
-use std::{hint::{self, black_box}, intrinsics::unlikely, iter::FusedIterator, mem, num::NonZero};
+use std::{
+    hint::{self, black_box},
+    intrinsics::unlikely,
+    iter::FusedIterator,
+    mem,
+    num::NonZero,
+};
 
 use criterion::{Criterion, criterion_group, criterion_main};
 
@@ -471,12 +477,14 @@ impl<'a> CharIndices<'a> {
 }
 
 pub struct StringTest {
-    vec: Vec<u8>
+    vec: Vec<u8>,
 }
 
 impl Clone for StringTest {
     fn clone(&self) -> Self {
-        StringTest { vec: self.vec.clone() }
+        StringTest {
+            vec: self.vec.clone(),
+        }
     }
 
     /// Clones the contents of `source` into `self`.
@@ -496,7 +504,12 @@ impl StringTest {
 
     #[inline]
     pub fn char_indices(&self) -> CharIndices<'_> {
-        CharIndices { front_offset: 0, iter: Chars { iter: self.vec.iter() } }
+        CharIndices {
+            front_offset: 0,
+            iter: Chars {
+                iter: self.vec.iter(),
+            },
+        }
     }
 
     #[inline]
@@ -550,7 +563,9 @@ impl StringTest {
         // Fast path: find the first character that should be removed or return early.
         let mut chars = self.char_indices();
         let (mut read, write) = loop {
-            let Some((idx, ch)) = chars.next() else { return };
+            let Some((idx, ch)) = chars.next() else {
+                return;
+            };
             if hint::unlikely(!f(ch)) {
                 break (idx + ch.len_utf8(), idx);
             }
@@ -574,13 +589,16 @@ impl StringTest {
             };
             let ch_len = ch.len_utf8();
             if f(ch) {
-                // SAFETY: `g.write` is always behind `g.read`, so we should have space for at least 
-                // the current `ch_len` bytes, so copying `ch` from write..read should be safe. 
+                // SAFETY: `g.write` is always behind `g.read`, so we should have space for at least
+                // the current `ch_len` bytes, so copying `ch` from write..read should be safe.
                 // Moreover, we do not have to worry about overlap safety with `char::encode_utf8`
                 // (unlike ptr::copy_nonoverlapping`) because we have a copy of the char that
                 // we populate within write..write + ch_len one byte at a time.
                 unsafe {
-                    core::char::encode_utf8_raw_unchecked(ch as u32, g.s.vec.as_mut_ptr().add(g.write));
+                    core::char::encode_utf8_raw_unchecked(
+                        ch as u32,
+                        g.s.vec.as_mut_ptr().add(g.write),
+                    );
                 };
                 g.write += ch_len;
             }
@@ -592,28 +610,7 @@ impl StringTest {
     }
 }
 
-fn current_string_retain() {
-    // 1 KiB of ASCII text with a control character every 16 bytes: 64 removals per call.
-    let mut dirty = String::new();
-    while dirty.len() < 1024 {
-        dirty.push_str("fifteen bytes..");
-        dirty.push('\u{1}');
-    }
-    // Same length, nothing to remove.
-    let clean = "sixteen bytes...".repeat(64);
-
-    for (_, input) in [("removes 1 of 16", &dirty), ("removes nothing", &clean)] {
-        for _ in 0..15 {
-            // for _ in 0..100_000 {
-            let mut s = black_box(input).clone();
-            s.retain(|c| !c.is_control());
-            black_box(s);
-            // }
-        }
-    }
-}
-
-fn previous_string_retain() {
+fn optimized_string_retain() {
     // 1 KiB of ASCII text with a control character every 16 bytes: 64 removals per call.
     let mut dirty = StringTest::new();
     while dirty.len() < 1024 {
@@ -621,7 +618,9 @@ fn previous_string_retain() {
         dirty.push('\u{1}');
     }
     // Same length, nothing to remove.
-    let clean = StringTest { vec: "sixteen bytes...".as_bytes().repeat(64) };
+    let clean = StringTest {
+        vec: "sixteen bytes...".as_bytes().repeat(64),
+    };
 
     for (_, input) in [("removes 1 of 16", &dirty), ("removes nothing", &clean)] {
         for _ in 0..15 {
@@ -633,18 +632,9 @@ fn previous_string_retain() {
 }
 
 fn bench_string_retain(c: &mut Criterion) {
-    c.bench_function("Current String Retain Benchmarks", |b| {
-        b.iter(|| {
-            black_box(current_string_retain())
-        })
+    c.bench_function("Optimized String Retain Benchmarks", |b| {
+        b.iter(|| black_box(optimized_string_retain()))
     });
-
-    c.bench_function("Previous String Retain Benchmarks", |b| {
-        b.iter(|| {
-            black_box(previous_string_retain())
-        })
-    });
-
 }
 
 criterion_group!(benches, bench_string_retain);
