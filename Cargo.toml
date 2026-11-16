@@ -1,0 +1,16 @@
+[package]
+name = "string_retain_bench"
+version = "0.1.0"
+edition = "2024"
+
+[dev-dependencies]
+criterion = {version = "^0.6.0", features =["async_tokio"] }
+
+
+[[bench]]
+name = "string_retain_bench"
+harness = false
+
+[[bench]]
+name = "prev_string_retain_bench"
+harness = false
