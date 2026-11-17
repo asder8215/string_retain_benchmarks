@@ -1,27 +1,27 @@
 Contains benchmark results pertaining to benches/optimized_string_retain_two_bench.rs
 
 Optimized String Retain Version Two Benchmarks
-                        time:   [27.086 µs 27.116 µs 27.145 µs]
-                        change: [−0.0982% +0.0194% +0.1355%] (p = 0.76 > 0.05)
-                        No change in performance detected.
-Found 13 outliers among 100 measurements (13.00%)
-  11 (11.00%) high mild
+                        time:   [27.290 µs 27.355 µs 27.438 µs]
+                        change: [+1.0174% +1.1835% +1.3712%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 8 outliers among 100 measurements (8.00%)
+  6 (6.00%) high mild
   2 (2.00%) high severe
 
 
- Performance counter stats for 'cargo bench --bench optimized_string_retain_two_bench':
+ Performance counter stats for './target/release/build/string_retain_bench/fe2b0b9936d108b4/out/optimized_string_retain_two_bench-fe2b0b9936d108b4 --bench':
 
                  0      context-switches:u               #      0.0 cs/sec  cs_per_second     
                  0      cpu-migrations:u                 #      0.0 migrations/sec  migrations_per_second
-            14,008      page-faults:u                    #    884.0 faults/sec  page_faults_per_second
-         15,846.36 msec task-clock:u                     #      nan CPUs  CPUs_utilized       
-       188,879,132      branch-misses:u                  #      0.4 %  branch_miss_rate         (49.97%)
-    51,265,830,867      branches:u                       #   3235.2 M/sec  branch_frequency     (50.00%)
-    72,825,993,769      cpu-cycles:u                     #      4.6 GHz  cycles_frequency       (66.68%)
-   221,794,145,142      instructions:u                   #      3.0 instructions  insn_per_cycle  (50.07%)
-     1,571,526,066      stalled-cycles-frontend:u        #     0.02 frontend_cycles_idle        (50.04%)
+             6,462      page-faults:u                    #    408.9 faults/sec  page_faults_per_second
+         15,803.18 msec task-clock:u                     #      nan CPUs  CPUs_utilized       
+       193,426,678      branch-misses:u                  #      0.4 %  branch_miss_rate         (50.04%)
+    50,460,848,700      branches:u                       #   3193.1 M/sec  branch_frequency     (50.00%)
+    72,576,877,287      cpu-cycles:u                     #      4.6 GHz  cycles_frequency       (66.68%)
+   218,952,799,755      instructions:u                   #      3.0 instructions  insn_per_cycle  (49.97%)
+     1,558,472,472      stalled-cycles-frontend:u        #     0.02 frontend_cycles_idle        (50.02%)
 
-       9.216446344 seconds time elapsed
+       9.074109030 seconds time elapsed
 
-      15.498361000 seconds user
-       0.126784000 seconds sys
+      15.438428000 seconds user
+       0.106568000 seconds sys
