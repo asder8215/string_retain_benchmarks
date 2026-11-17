@@ -16,5 +16,9 @@ name = "optimized_string_retain_bench"
 harness = false
 
 [[bench]]
+name = "optimized_string_retain_two_bench"
+harness = false
+
+[[bench]]
 name = "prev_string_retain_bench"
 harness = false
